@@ -1,0 +1,19 @@
+# Python bytecode / cache
+__pycache__/
+*.py[cod]
+
+# Input data (generated sample data or official data)
+data/
+
+# All generated artifacts (database, HTML)
+output/
+
+# Others 
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
