@@ -235,3 +235,46 @@ class TestDataMapper(AnalysisStep):
             )
         grid_x, grid_y = curve
         return float(np.interp(x_value, grid_x, grid_y))
+
+
+def summarise_mapping(
+    assignments: Sequence[TestAssignment], unmapped_count: int
+) -> dict:
+    """Compute compact statistics over the mapping results.
+
+    The function complements the per-point database table with aggregate
+    figures that are useful for the results analysis of the assignment,
+    namely the mapping rate and the mean and maximum absolute deviation.
+
+    Parameters
+    ----------
+    assignments:
+        The list of :class:`TestAssignment` objects produced by
+        :meth:`TestDataMapper.run`.
+    unmapped_count:
+        The number of test points that could not be mapped.
+
+    Returns
+    -------
+    dict
+        Dictionary with the keys ``mapped_points``, ``unmapped_points``,
+        ``mapping_rate``, ``mean_abs_deviation``, ``max_abs_deviation``
+        and ``per_ideal_func``.
+    """
+    mapped = len(assignments)
+    total = mapped + unmapped_count
+    deviations = [assignment.delta_y for assignment in assignments]
+    per_ideal_func: dict[int, int] = {}
+    for assignment in assignments:
+        per_ideal_func[assignment.ideal_func_no] = (
+            per_ideal_func.get(assignment.ideal_func_no, 0) + 1
+        )
+    return {
+        "mapped_points": mapped,
+        "unmapped_points": unmapped_count,
+        "mapping_rate": (mapped / total) if total else 0.0,
+        "mean_abs_deviation": float(np.mean(deviations)) if deviations else 0.0,
+        "max_abs_deviation": float(np.max(deviations)) if deviations else 0.0,
+        "per_ideal_func": per_ideal_func,
+    }
+    
