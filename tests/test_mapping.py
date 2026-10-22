@@ -11,7 +11,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pandas as pd
 
 from exceptions import MappingError
-from mapping import TestDataMapper
+from mapping import TestDataMapper, summarise_mapping
 from selection import SelectionResult
 
 
@@ -122,6 +122,35 @@ class TestDataMapperTest(unittest.TestCase):
         test = pd.DataFrame({"x": [1.0], "y": [1.0]})
         with self.assertRaises(MappingError):
             self.mapper.run(test, ideal)
+
+    def test_summarise_mapping_statistics(self) -> None:
+        """The summary reports counts, rate and deviation figures."""
+        test = pd.DataFrame({"x": [1.0, 1.0, 2.0], "y": [1.1, 1.05, 4.1]})
+        assignments, unmapped = self.mapper.run(test, self.ideal_frame)
+    
+        summary = summarise_mapping(assignments, unmapped)
+        self.assertEqual(summary["mapped_points"], len(assignments))
+        self.assertEqual(
+            summary["mapped_points"] + summary["unmapped_points"], 3
+        )
+        self.assertAlmostEqual(
+            summary["mapping_rate"], len(assignments) / 3, places=6
+        )
+        self.assertGreaterEqual(summary["mean_abs_deviation"], 0.0)
+        self.assertGreaterEqual(summary["max_abs_deviation"], summary["mean_abs_deviation"])
+        self.assertEqual(
+            sum(summary["per_ideal_func"].values()), len(assignments)
+        )
+    
+    def test_summarise_mapping_empty(self) -> None:
+        """An empty mapping produces zeroed statistics and no distribution."""
+        summary = summarise_mapping([], 5)
+        self.assertEqual(summary["mapped_points"], 0)
+        self.assertEqual(summary["unmapped_points"], 5)
+        self.assertEqual(summary["mapping_rate"], 0.0)
+        self.assertEqual(summary["mean_abs_deviation"], 0.0)
+        self.assertEqual(summary["max_abs_deviation"], 0.0)
+        self.assertEqual(summary["per_ideal_func"], {})
 
 
 if __name__ == "__main__":

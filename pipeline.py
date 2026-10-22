@@ -19,7 +19,7 @@ from __future__ import annotations
 from config import Config
 from data_loader import DataLoader
 from database import SQLiteDatabaseManager
-from mapping import TestAssignment, TestDataMapper
+from mapping import TestAssignment, TestDataMapper, summarise_mapping
 from selection import IdealFunctionSelector, SelectionResult
 from visualization import Visualizer
 
@@ -114,6 +114,7 @@ class AssignmentPipeline:
             ],
             "mapped_points": mapped_rows,
             "unmapped_points": unmapped,
+            "mapping_summary": summarise_mapping(assignments, unmapped),
             "database_path": str(self.config.db_path),
             "plot_path": str(plot_path),
         }

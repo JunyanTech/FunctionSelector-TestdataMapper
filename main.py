@@ -134,6 +134,20 @@ def print_summary(summary: dict) -> None:
     print("-" * 60)
     print(f"Mapped test points       : {summary['mapped_points']}")
     print(f"Unmapped test points     : {summary['unmapped_points']}")
+    mapping_summary = summary.get("mapping_summary")
+    if mapping_summary is not None:
+        print(
+            f"Mean absolute deviation   : "
+            f"{mapping_summary['mean_abs_deviation']:.4f}"
+        )
+        print(
+            f"Max absolute deviation    : "
+            f"{mapping_summary['max_abs_deviation']:.4f}"
+        )
+        print(
+            "Mapped by ideal function : "
+            f"{mapping_summary['per_ideal_func']}"
+        )
     print(f"Database                 : {summary['database_path']}")
     print(f"visualization            : {summary['plot_path']}")
     print("=" * 60)
